@@ -1,0 +1,19 @@
+Useful snippet for creating and then initializing the installer directly in Maya. Easily assignable to a shelf button. Edit the d variable to suit your environment.
+{{{
+from pymel.core import *
+import maya.cmds as mc
+import maya
+import os
+
+d = os.path.abspath("C:/Users/jonl/Documents/Maya Foundation/mayafoundation")
+
+# Create the installer
+sys.path.append( os.path.join(d, "bin")
+import createFoundationInstaller
+reload(createFoundationInstaller)
+createFoundationInstaller.createFoundationInstaller()
+
+# Run the installer
+cmd = 'source "%2";' % os.path.join(d, "release", "foundation_installer.mel")
+mel.eval(cmd)
+}}}

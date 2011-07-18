@@ -1,0 +1,62 @@
+/*
+#
+#  foundation_installer.mel
+#  mayaPyTools
+#
+#  Created by Jon Lauridsen on 10/6/08.
+#  Copyright (c) Jon Lauridsen. All rights reserved.
+#
+*/
+
+
+/* ==== DEFAULT SHARED FOLDER SUGGESTIONS S==== */
+string $FOUNDATION_DEFAULT_PATHS[];
+$FOUNDATION_DEFAULT_PATHS[0] = "p:/shared/";
+$FOUNDATION_DEFAULT_PATHS[1] = "s:";
+$FOUNDATION_DEFAULT_PATHS[2] = "~/projects/shared maya tools";
+/* ==== DO NOT EDIT FURTHER ==== */
+
+
+global proc __foundation_runPythonInstaller__() {
+	string $dir = __foundation_getUserScriptDir__();
+	string $pyInstaller = "foundation_installer.py";
+
+	string $fileName = $dir + $pyInstaller;
+	string $content = __foundation_getPayload__();
+
+	/* Create the Python payload file and fill it with content */
+	$fileId = `fopen $fileName "w"`;
+	fprint $fileId $content;
+	fclose $fileId;
+	print("Wrote file: " + $fileName + "\n");
+
+	string $cmd = "try: reload(foundation_installer)\nexcept NameError: import foundation_installer";
+	python( $cmd );
+
+	/* After completing the script we delete the Python payload file and its
+	associated .pyc file */
+	sysFile -delete $fileName;
+	sysFile -delete ($fileName + "c");
+}
+
+global proc string __foundation_getUserScriptDir__() {
+	string $path;
+	if( `about -windows`) {
+		$path = `internalVar -userPrefDir`;
+		$path = $path + "scripts/";
+		string $r[] = `file -query -type $path`;
+		if( $r[0] == "directory" ) { print "Windows check OK\n"; }
+	} else if( `about -mac`) {
+		$path = `internalVar -userScriptDir`;
+	} else {
+		error( "Could not locate user script directory. Installer can only detect Windows and Mac" );
+	}
+	return $path;
+}
+
+global proc string __foundation_getPayload__() {
+	string $content = "-%replacewithcontent%-";
+	return $content;
+}
+
+__foundation_runPythonInstaller__();
